@@ -3,6 +3,9 @@ const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 
+require('dotenv').config();
+const mongoose = require('mongoose');
+
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -97,7 +100,21 @@ app.post('/delete-student', async (req, res) => {
 });
 
 // Start the server
-const PORT = 3000;
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
+const PORT = process.env.PORT || 3000;
+
+async function start() {
+    try {
+        await mongoose.connect(process.env.MONGODB_URI);
+        console.log('Connected to MongoDB');
+
+        app.listen(PORT, () => {
+            console.log(`Server is running on http://localhost:${PORT}`);
+        });
+    } catch (error) {
+        console.error('Could not connect to MongoDB:', error.message);
+        process.exitCode = 1;
+    }
+}
+
+start();
+
